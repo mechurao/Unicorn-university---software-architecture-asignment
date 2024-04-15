@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const {INSERT_USER_QUERY, INSERT_EMAIL_QUERY, INSERT_PASSWORD_QUERY} = require("../Values/dbQueries");
 
 const  DB_HOST = "localhost";
 const DB_NAME = "Unicorn";
@@ -40,9 +41,9 @@ function execQuery(connection, query, params) {
     });
 }
 
-async function performDbQuery(query, params = [], conn) {
+async function performDbQuery(query, params = []) {
     try {
-        const connection = await connectDatabase(conn);
+        const connection = await connectDatabase(dbConfig);
         const results = await execQuery(connection, query, params);
         connection.end();
         return results;
@@ -52,6 +53,35 @@ async function performDbQuery(query, params = [], conn) {
     }
 }
 
+async function createUserAccount(uID,username, email, passwordHash, userToken){
+    const connection = await  connectDatabase(dbConfig);
+    try{
+        await  connection.beginTransaction();
+        // save account
+        await connection.query(INSERT_USER_QUERY,[uID,username]);
+
+        // save email
+        await  connection.query(INSERT_EMAIL_QUERY,[uID, email]);
+
+        // save hashed password
+        await  connection.query(INSERT_PASSWORD_QUERY,[uID, passwordHash]);
+
+        // save token
+        await connection.query(INSERT_TOKEN_QUERY,[uID,userToken]);
+
+        await  connection.commit();
+        return true;
+    }catch(err){
+        await  connection.rollback();
+        return  false;
+
+    }finally {
+        connection.end();
+    }
+}
+
+
 module.exports = {
-    performDbQuery
+    performDbQuery,
+    createUserAccount
 }
