@@ -1,6 +1,10 @@
 const {performAppQuery} = require("./dbHelper");
 const {GET_EMAIL_QUERY, INSERT_EMAIL_QUERY, UPDATE_EMAIL_QUERY, DELETE_EMAIL_QUERY, CHECK_EMAIL_QUERY} = require("../Values/dbQueries");
 
+async function getEmail(uID){
+    return await performAppQuery(GET_EMAIL_QUERY,[uID]);
+}
+
 async function saveUserEmail(uID,email){
     let query = await  performAppQuery(INSERT_EMAIL_QUERY,[uID,email]);
     return query !== undefined;
@@ -25,5 +29,6 @@ module.exports = {
     saveUserEmail,
     isEmailRegistred,
     updateEmail,
-    deleteEmail
+    deleteEmail,
+    getEmail
 }

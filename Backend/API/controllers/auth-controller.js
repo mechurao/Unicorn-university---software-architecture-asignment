@@ -2,7 +2,7 @@ const  express = require("express");
 const {signUpUser} = require("../../ABL/Auth/signUpABL");
 const router = express.Router();
 
-router.post("/sign-in", (req, res) => {
+router.post("/sign-in", async (req, res) => {
    res.send("Sign in");
 });
 
