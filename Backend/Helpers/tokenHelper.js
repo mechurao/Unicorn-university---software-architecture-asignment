@@ -27,9 +27,6 @@ async function getUidFromToken(token){
 
 async function isTokenValid(token){
     let res = await  getUidFromToken(token);
-    if(res === undefined) {
-
-    }
     return res !== undefined;
 }
 

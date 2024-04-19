@@ -1,5 +1,8 @@
 const mysql = require('mysql2');
-const {INSERT_USER_QUERY, INSERT_EMAIL_QUERY, INSERT_PASSWORD_QUERY} = require("../Values/dbQueries");
+const {INSERT_USER_QUERY, INSERT_EMAIL_QUERY, INSERT_PASSWORD_QUERY, INSERT_TOILET_QUERY, INSERT_TOILET_CODE_QUERY,
+    INSERT_TOILET_PRICE_QUERY
+} = require("../Values/dbQueries");
+const {ToiletType} = require("../Enums/toiletType");
 
 const  DB_HOST = "localhost";
 const DB_NAME = "Unicorn";
@@ -73,8 +76,31 @@ async function createUserAccount(uID,username, email, passwordHash, userToken){
         return true;
     }catch(err){
         await  connection.rollback();
-        return  false;
+        return  false
+    }finally {
+        connection.end();
+    }
+}
 
+async function saveToilet(tID, toilet){
+    const connection = await connectDatabase(dbConfig);
+    try{
+        await connection.beginTransaction();
+        // save toilet
+        await  connection.performDbQuery(INSERT_TOILET_QUERY,[tID, toilet.name, toilet.type, toilet.description, toilet.latitude, toilet.longitude]);
+
+        if(toilet.type === ToiletType.code){
+            await  connection.performDbQuery(INSERT_TOILET_CODE_QUERY,[tID, toilet.code]);
+        }
+
+        if(toilet.type === ToiletType.paid){
+            await connection.performDbQuery(INSERT_TOILET_PRICE_QUERY,[tID, toilet.price.amount, toilet.price.currency]);
+        }
+        await  connection.commit();
+        return true;
+    }catch (e){
+        await connection.rollback();
+        return  false
     }finally {
         connection.end();
     }
@@ -83,5 +109,6 @@ async function createUserAccount(uID,username, email, passwordHash, userToken){
 
 module.exports = {
     performDbQuery,
-    createUserAccount
+    createUserAccount,
+    saveToilet
 }
