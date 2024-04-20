@@ -6,6 +6,7 @@ const TOILETS_TABLE_NAME = "Toilets";
 const TOILET_CODES_TABLE_NAME = "Codes";
 const TOILET_PRICE_TABLE_NAME = "Prices";
 const RATINGS_TABLE_NAME = "Ratings";
+const CURRENCY_TABLE_NAME = "Currency";
 
 // table types consts
 const TOILET_TYPE_FREE = 0;
@@ -40,7 +41,7 @@ const GET_UID_FROM_TOKEN = `SELECT uID FROM ${TOKENS_TABLE_NAME} WHERE token = ?
 
 // toilets
 const INSERT_TOILET_QUERY = `INSERT INTO ${TOILETS_TABLE_NAME} (tID, name, type, description, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?)`;
-const SELECT_TOILET_QUERY = `SELECT * FROM ${TOILETS_TABLE_NAME} WHERE tID = ?`;
+const SELECT_TOILET_QUERY = `SELECT name, type, description, latitude, longitude FROM ${TOILETS_TABLE_NAME} WHERE tID = ?`;
 const SELECT_TOILETS_IN_RADIUS_QUERY = `SELECT 
     t.tID,
     t.name,
@@ -49,9 +50,9 @@ const SELECT_TOILETS_IN_RADIUS_QUERY = `SELECT
     t.latitude,
     t.longitude,
     CASE 
-        WHEN t.type = ${TOILET_TYPE_FREE} THEN NULL  -- Typ zdarma, žádný extra parametr
-        WHEN t.type = ${TOILET_TYPE_CODE} THEN c.code -- Typ s kódem
-        WHEN t.type = ${TOILET_TYPE_PAID} THEN CONCAT(p.amount, ' ', p.currency) -- Typ placený
+        WHEN t.type = ${TOILET_TYPE_FREE} THEN NULL 
+        WHEN t.type = ${TOILET_TYPE_CODE} THEN c.code
+        WHEN t.type = ${TOILET_TYPE_PAID} THEN CONCAT(p.amount, ' ', p.currency) 
     END AS extra_info
 FROM 
     Toilets t
@@ -63,11 +64,38 @@ WHERE
     ST_Distance_Sphere(POINT(t.longitude, t.latitude), POINT(?, ?)) <= ?;
 `;
 
+const SELECT_NEAREST_TOILET_QUERY = `SELECT 
+    t.tID,
+    t.name,
+    t.type,
+    t.description,
+    t.latitude,
+    t.longitude,
+    CASE 
+        WHEN t.type = ${TOILET_TYPE_FREE} THEN NULL 
+        WHEN t.type = ${TOILET_TYPE_CODE} THEN c.code
+        WHEN t.type = ${TOILET_TYPE_PAID} THEN CONCAT(p.amount, ' ', p.currency) 
+    END AS extra_info,
+    ST_Distance_Sphere(POINT(t.longitude, t.latitude), POINT(?, ?)) as distance
+FROM 
+    Toilets t
+LEFT JOIN 
+    Codes c ON t.tID = c.tID AND t.type = ${TOILET_TYPE_CODE}
+LEFT JOIN 
+    Prices p ON t.tID = p.tID AND t.type = ${TOILET_TYPE_PAID}
+ORDER BY 
+    distance
+LIMIT 1;`
+
+
+
 // toilet codes
 const INSERT_TOILET_CODE_QUERY = `INSERT INTO ${TOILET_CODES_TABLE_NAME} (tID, code) VALUES (?, ?)`;
+const SELECT_TOILET_CODE_QUERY = `SELECT code FROM ${TOILET_CODES_TABLE_NAME} WHERE tID = ?`;
 
 // toilet price
-const INSERT_TOILET_PRICE_QUERY = `INSERT INTO ${TOILET_PRICE_TABLE_NAME} (tID, amount, currency) VALUES (?, ?, ?)`;
+const INSERT_TOILET_PRICE_QUERY = `INSERT INTO ${TOILET_PRICE_TABLE_NAME} (tID, amount, cID) VALUES (?, ?, ?)`;
+const SELECT_TOILET_PRICE_QUERY = `SELECT ${TOILET_PRICE_TABLE_NAME}.amount, ${CURRENCY_TABLE_NAME}.name FROM ${TOILET_PRICE_TABLE_NAME} JOIN ${CURRENCY_TABLE_NAME} ON ${TOILET_PRICE_TABLE_NAME}.cID = {CURRENCY_TABLE_NAME}.cID WHERE {TOILET_PRICE_TABLE_NAME}.tID = ?`;
 
 // toilet rating
 const INSERT_TOILET_RATING_QUERY = `INSERT INTO ${RATINGS_TABLE_NAME} (tID, uID, rating, text) VALUES (?, ?, ?, ?)`;
@@ -97,6 +125,9 @@ module.exports = {
     INSERT_TOILET_CODE_QUERY,
     INSERT_TOILET_PRICE_QUERY,
     INSERT_TOILET_RATING_QUERY,
-    GET_TOILET_RATINGS_QUERY
+    GET_TOILET_RATINGS_QUERY,
+    SELECT_TOILET_CODE_QUERY,
+    SELECT_TOILET_PRICE_QUERY,
+    SELECT_NEAREST_TOILET_QUERY
 }
 

@@ -1,5 +1,6 @@
 const {performDbQuery} = require("./dbHelper");
-const {SELECT_TOILET_QUERY} = require("../Values/dbQueries");
+const {SELECT_TOILET_QUERY, SELECT_TOILETS_IN_RADIUS_QUERY, SELECT_TOILET_CODE_QUERY, SELECT_TOILET_PRICE_QUERY} = require("../Values/dbQueries");
+const {ToiletType} = require("../Enums/toiletType");
 
 async function getToilet(tID){
     let res = await  performDbQuery(SELECT_TOILET_QUERY,[tID]);
@@ -7,6 +8,27 @@ async function getToilet(tID){
     return  res[0];
 }
 
+async  function getToiletsInRadius(latitude, longitude, radius){
+    return await  performDbQuery(SELECT_TOILETS_IN_RADIUS_QUERY,[latitude,longitude,radius]);
+}
+
+async function getToiletDetails(toilet){
+    if (toilet.type === ToiletType.code){
+        let code = await performDbQuery(SELECT_TOILET_CODE_QUERY,[toilet.tID]);
+        if(code === undefined){return undefined;}
+        toilet.code = code;
+    }
+    if(toilet.type === ToiletType.paid){
+        let price = await performDbQuery(SELECT_TOILET_PRICE_QUERY,[toilet.tID]);
+        if(price === undefined){return  undefined;}
+        toilet.price = price;
+    }
+    return  toilet;
+}
+
+
 module.exports = {
-    getToilet
+    getToilet,
+    getToiletsInRadius,
+    getToiletDetails
 }
