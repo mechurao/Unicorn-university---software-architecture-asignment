@@ -1,17 +1,16 @@
-import Button from '@mui/material/Button';
 import * as React from 'react';
 import {primaryButtonStyle} from "./buttonStyles";
+import AppButton from "./appButton";
 
 
-function PrimaryButton({title, callback}){
-    return <Button
-        variant="contained"
-        sx={
-            primaryButtonStyle
-        }
-        onClick = {callback}>
-        {title}
-    </Button>
+function PrimaryButton({title, callback, width, height}){
+    return <AppButton
+        title={title}
+        callback={callback}
+        style={primaryButtonStyle}
+        width={width}
+        height={height}>
+    </AppButton>
 }
 
 export default PrimaryButton

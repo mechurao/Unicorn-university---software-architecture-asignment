@@ -1,17 +1,16 @@
-import Button from '@mui/material/Button';
 import * as React from 'react';
 import { secondaryButtonStyle} from "./buttonStyles";
+import AppButton from "./appButton";
 
 
-function SecondaryButton({title, callback}){
-    return <Button
-        variant="contained"
-        sx={
-            secondaryButtonStyle
-        }
-        onClick = {callback}>
-        {title}
-    </Button>
+function SecondaryButton({title, callback, width, height}){
+    return <AppButton
+        title={title}
+        callback={callback}
+        style={secondaryButtonStyle}
+        width={width}
+        height={height}>
+    </AppButton>
 }
 
 export default SecondaryButton

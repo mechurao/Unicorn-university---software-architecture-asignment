@@ -2,9 +2,8 @@ import {appColor} from "../../values/colors";
 
 const buttonStyles = {
 borderRadius:'20px',
-    width: '500px'
-
-
+    width: '500px',
+    height: '60px'
 };
 
 export  const primaryButtonStyle = {
