@@ -12,10 +12,9 @@ function Home(){
     return <>
         <NavBar title="test"></NavBar>
         <div id={styles.auth_wrapper}>
-            <PrimaryButton title="Sign in" callback={openSignIn} ></PrimaryButton>
+            <PrimaryButton title="Sign in" callback={openSignIn} />
             <br/>
-
-            <SecondaryButton title="Sign up" callback={openSignUp} ></SecondaryButton>
+            <SecondaryButton title="Sign up" callback={openSignUp} />
         </div>
 
     </>

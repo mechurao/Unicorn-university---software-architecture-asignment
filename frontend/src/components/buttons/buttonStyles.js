@@ -3,7 +3,7 @@ import {appColor} from "../../values/colors";
 const buttonStyles = {
 borderRadius:'20px',
     width: '500px',
-    height: '60px'
+    height: '40px'
 };
 
 export  const primaryButtonStyle = {

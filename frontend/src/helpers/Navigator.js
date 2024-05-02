@@ -5,6 +5,8 @@ export function Navigator() {
 
     const openSignIn = () => navigate("/sign-in");
     const openSignUp = () => navigate("/sign-up");
+    const openHome = () => navigate("/");
+    const openToilets = () => navigate("/toilets");
 
-    return { openSignIn, openSignUp };
+    return { openSignIn, openSignUp, openHome, openToilets };
 }
