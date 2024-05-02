@@ -5,17 +5,19 @@ const {saveUserToken} = require("../../Helpers/tokenHelper");
 const {saveUser} = require("../../Helpers/userAccountHelper");
 const {hashString} = require("../../Helpers/hashHelper");
 const {createUserAccount} = require("../../Helpers/dbHelper");
+const { EMAIL_REGISTERED_CODE, SERVER_ERROR_CODE} = require("../../Values/response-codes");
 async function signUpUser(req, res) {
     const {username,email, password} = req.body;
 
     try{
-        if(!email || !password){
-            return res.status(400).send({error: 'email or password missing'});
+        if(!email || !password || !password){
+            return res.status(400).send({error: 'missing credentials'});
         }
 
         // check email
         let mailRegistered = await isEmailRegistred(email);
-        if(mailRegistered){res.sendStatus(EMAIL_REGISTERED_CODE)}
+        console.log(mailRegistered);
+        if(mailRegistered){return res.sendStatus(EMAIL_REGISTERED_CODE)}
 
         // generate uID
         let uID = generateUID();
@@ -24,17 +26,16 @@ async function signUpUser(req, res) {
         let acc = await createUserAccount(uID,username,email,hash,token);
         if(!acc){
             console.log("Failed creating user");
-            res.sendStatus(SERVER_ERROR_CODE);
+            return res.sendStatus(SERVER_ERROR_CODE);
         }
 
-        res.sendStatus(200).json(
-            {
-                "token":token
-            }
-        );
+        return res.status(200).json({
+            "token": token
+        });
+
     }catch (err){
         console.log(err);
-        res.sendStatus(SERVER_ERROR_CODE);
+        return res.sendStatus(SERVER_ERROR_CODE);
     }
 
 

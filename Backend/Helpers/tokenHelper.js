@@ -1,26 +1,26 @@
-const {performAppQuery} = require("./dbHelper");
+const { performDbQuery} = require("./dbHelper");
 const {GET_TOKEN_QUERY,  INSERT_TOKEN_QUERY, GET_UID_FROM_TOKEN, DELETE_USER_TOKEN_QUERY, DELETE_TOKEN_QUERY} = require("../Values/dbQueries");
 
 async function getUserTokens(uID){
-    return await  performAppQuery(GET_TOKEN_QUERY,[uID]);
+    return await  performDbQuery(GET_TOKEN_QUERY,[uID]);
 }
 
 async function deleteUserToken(uID){
-    let res = await performAppQuery(DELETE_USER_TOKEN_QUERY,[uID]);
+    let res = await performDbQuery(DELETE_USER_TOKEN_QUERY,[uID]);
     return res !== undefined;
 }
 
 async function deleteToken(token){
-    let res = await performAppQuery(DELETE_TOKEN_QUERY,[token]);
+    let res = await performDbQuery(DELETE_TOKEN_QUERY,[token]);
     return res !== undefined;
 }
 
 async function saveUserToken(uID, token){
-    let res = await  performAppQuery(INSERT_TOKEN_QUERY,[uID,token]);
+    let res = await  performDbQuery(INSERT_TOKEN_QUERY,[uID,token]);
     return res !== undefined;
 }
 async function getUidFromToken(token){
-    let res = await  performAppQuery(GET_UID_FROM_TOKEN,[token]);
+    let res = await performDbQuery(GET_UID_FROM_TOKEN,[token]);
     if(!res || res.length === 0){return undefined;}
     return  res[0].uID;
 }

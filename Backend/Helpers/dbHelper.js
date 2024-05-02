@@ -1,6 +1,6 @@
-const mysql = require('mysql2');
+const mysql = require('mysql');
 const {INSERT_USER_QUERY, INSERT_EMAIL_QUERY, INSERT_PASSWORD_QUERY, INSERT_TOILET_QUERY, INSERT_TOILET_CODE_QUERY,
-    INSERT_TOILET_PRICE_QUERY
+    INSERT_TOILET_PRICE_QUERY, INSERT_TOKEN_QUERY
 } = require("../Values/dbQueries");
 const {ToiletType} = require("../Enums/toiletType");
 
@@ -45,6 +45,7 @@ function execQuery(connection, query, params) {
 }
 
 async function performDbQuery(query, params = []) {
+
     try {
         const connection = await connectDatabase(dbConfig);
         const results = await execQuery(connection, query, params);

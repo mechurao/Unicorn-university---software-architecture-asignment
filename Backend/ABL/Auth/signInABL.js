@@ -6,6 +6,7 @@ const {hashMatches} = require("../../Helpers/hashHelper");
 const {getUserTokens, deleteUserToken, saveUserToken} = require("../../Helpers/tokenHelper");
 const {generateToken} = require("../../Utils/tokenGenerator");
 const {getUserData} = require("../../Helpers/userAccountHelper");
+const {EMAIL_DOES_NOT_EXIST_CODE, USER_NOT_FOUND_CODE, SERVER_ERROR_CODE, INVALID_USER_CREDENTIALS_CODE} = require("../../Values/response-codes");
 
 async function signInUserEmail(req, res){
     const {email, password} = req.body;
@@ -20,7 +21,7 @@ async function signInUserEmail(req, res){
         // check email
         let mail = await  isEmailRegistred(email);
         if(!mail){
-            res.sendStatus(EMAIL_DOES_NOT_EXIST_CODE);
+            return res.sendStatus(EMAIL_DOES_NOT_EXIST_CODE);
         }
 
         // get uID
@@ -40,7 +41,7 @@ async function signInUserEmail(req, res){
         let hashed = passwdQuery[0].password;
         if(!hashMatches(hashed,password)){
             console.log("Password does not match");
-            res.sendStatus(INVALID_USER_CREDENTIALS_CODE)
+            return res.sendStatus(INVALID_USER_CREDENTIALS_CODE)
         }
 
         let tokenQuery = getUserTokens(uID);
@@ -65,7 +66,7 @@ async function signInUserEmail(req, res){
             return res.sendStatus(SERVER_ERROR_CODE);
         }
 
-        return  res.sendStatus(200).json({
+        return  res.status(200).json({
             "token":token,
             "userData":userData
         })
