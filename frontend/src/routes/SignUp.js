@@ -49,6 +49,15 @@ function SignUp() {
             }
             const {signUp} = APIService();
             let res = await signUp(user);
+            let status = res.status;
+            if(status !== 200){
+                alert("Server error");
+                return;
+            }
+
+            let token = res.data.token;
+
+            alert(status);
 
         }
     };
