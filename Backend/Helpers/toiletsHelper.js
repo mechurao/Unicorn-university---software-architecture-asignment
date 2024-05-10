@@ -10,9 +10,10 @@ async function getToilet(tID){
     return  res[0];
 }
 
-async  function getToiletsInRadius(latitude, longitude, radius){
-    return await  performDbQuery(SELECT_TOILETS_IN_RADIUS_QUERY,[latitude,longitude,radius]);
+async function getToiletsInRadius(latitude, longitude, radius) {
+    return await performDbQuery(SELECT_TOILETS_IN_RADIUS_QUERY, [longitude, latitude, radius]);
 }
+
 
 async function getToiletDetails(toilet){
     if (toilet.type === ToiletType.code){

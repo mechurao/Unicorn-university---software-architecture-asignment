@@ -15,8 +15,8 @@ function Toilets() {
     const [userLocation, setUserLocation] = useState(defaultLocation);
     const [showAddToiletForm, setShowAddToiletForm] = useState(false);
     const [toilets, setToilets] = useState([]);
-    const [error, setError] = useState(null);
-    const radius = 10000; // Příklad: poloměr 10 km
+    const radius = 10000; // in meters
+    const { getToilets } = APIService();
 
     const addToiletForm = () => {
         setShowAddToiletForm(true);
@@ -26,12 +26,10 @@ function Toilets() {
         setShowAddToiletForm(false);
     };
 
-    const { getToilets } = APIService();
-
     const fetchToilets = async (location) => {
         const token = TokenHelper.getToken();
         if (!token) {
-            setError("No token available.");
+            alert("Token error");
             return;
         }
 
@@ -39,13 +37,11 @@ function Toilets() {
             const response = await getToilets(token, location, radius);
             if (response.status === 200) {
                 setToilets(response.data.toilets);
-                setError(null);
             } else {
-                setError("Failed to fetch toilets data");
-                console.error("Failed to fetch toilets data");
+                alert("Fetching toilets error");
             }
         } catch (error) {
-            setError("Failed to fetch toilets data due to an error");
+            alert("Server error");
             console.error("Error fetching toilets data:", error);
         }
     };
@@ -79,7 +75,6 @@ function Toilets() {
     return (
         <>
             <NavBar title="Toilets" />
-            {error && <div style={{ color: "red" }}>{error}</div>}
             <Map location={userLocation} toilets={toilets} />
             <PrimaryButton title="Add" callback={addToiletForm} />
             {showAddToiletForm && <AddToiletForm onClose={handleFormClose} />}

@@ -64,8 +64,9 @@ const SELECT_TOILETS_IN_RADIUS_QUERY = `
             LEFT JOIN
         ${CURRENCY_TABLE_NAME} curr ON curr.cID = p.cID
     WHERE
-        ST_Distance_Sphere(POINT(t.longitude, t.latitude), POINT(?, ?)) <= ?;
+        ST_Distance_Sphere(POINT(t.longitude, t.latitude), POINT(?, ?)) <= ?
 `;
+
 
 const SELECT_NEAREST_TOILET_QUERY = `
     SELECT
