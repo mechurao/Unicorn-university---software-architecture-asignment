@@ -31,6 +31,20 @@ export function APIService(){
 
     }
 
+
+    async function getToilets(token, location, radius){
+        try{
+
+
+        }catch (err){
+            console.error("Loading toilets error : ",err);
+            return {
+                status:500
+            }
+        }
+    }
+
+
     return {signUp}
 }
 

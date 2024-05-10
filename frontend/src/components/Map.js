@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, InfoWindow } from '@react-google-maps/api';
-import styles from '../styles/map.module.css'
+import styles from '../styles/map.module.css';
 
 const libraries = ['places'];
 const mapContainerStyle = {
     width: '100vw',
-    height: '100vh',
+    height: '80vh',
 };
 
-
-function Map({location}) {
+function Map({ location }) {
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: 'AIzaSyBP8NPW4lmtUS2JM47Qs_ViycFVkzQyaCY',
         libraries,
@@ -25,9 +24,8 @@ function Map({location}) {
         return <div>Loading maps</div>;
     }
 
-
     return (
-        <div >
+        <div>
             <GoogleMap
                 mapContainerStyle={mapContainerStyle}
                 zoom={10}
@@ -56,6 +54,3 @@ function Map({location}) {
 }
 
 export default Map;
-
-
-//'AIzaSyBP8NPW4lmtUS2JM47Qs_ViycFVkzQyaCY'
