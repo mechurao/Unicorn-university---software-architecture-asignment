@@ -5,6 +5,8 @@ import PrimaryButton from "../components/buttons/primaryButton";
 import AddToiletForm from "../components/AddToiletForm";
 import { APIService } from "../helpers/APIService";
 import TokenHelper from "../helpers/TokenHelper";
+import Checkbox from '@mui/joy/Checkbox';
+import styles from "../styles/toilets.module.css";
 
 function Toilets() {
     const defaultLocation = {
@@ -15,7 +17,15 @@ function Toilets() {
     const [userLocation, setUserLocation] = useState(defaultLocation);
     const [showAddToiletForm, setShowAddToiletForm] = useState(false);
     const [toilets, setToilets] = useState([]);
+    const [filteredToilets, setFilteredToilets] = useState([]);
+
+    // checkboxes states
+    const [freeCheckbox, setFreeCheckbox] = useState(true);
+    const [codeCheckbox, setCodeCheckbox] = useState(true);
+    const [paidCheckbox, setPaidCheckbox] = useState(true);
+
     const radius = 10000; // in meters
+
     const { getToilets } = APIService();
 
     const addToiletForm = () => {
@@ -37,6 +47,7 @@ function Toilets() {
             const response = await getToilets(token, location, radius);
             if (response.status === 200) {
                 setToilets(response.data.toilets);
+                applyFilters(response.data.toilets);
             } else {
                 alert("Fetching toilets error");
             }
@@ -44,6 +55,17 @@ function Toilets() {
             alert("Server error");
             console.error("Error fetching toilets data:", error);
         }
+    };
+
+    const applyFilters = (toilets) => {
+        const filtered = toilets.filter(toilet => {
+            if (toilet.type === 0 && !freeCheckbox) return false;
+            if (toilet.type === 1 && !codeCheckbox) return false;
+            if (toilet.type === 2 && !paidCheckbox) return false;
+            return true;
+        });
+
+        setFilteredToilets(filtered);
     };
 
     useEffect(() => {
@@ -72,10 +94,35 @@ function Toilets() {
         getUserLocationAndFetchToilets();
     }, []);
 
+    // Checkbox actions
+    const freeCheckAction = (event) => {
+        setFreeCheckbox(event.target.checked);
+    };
+
+    const codeCheckAction = (event) => {
+        setCodeCheckbox(event.target.checked);
+    }
+
+    const paidCheckAction = (event) => {
+        setPaidCheckbox(event.target.checked);
+    }
+
+    // Apply filters whenever the checkbox state changes
+    useEffect(() => {
+        applyFilters(toilets);
+    }, [freeCheckbox, codeCheckbox, paidCheckbox]);
+
     return (
         <>
             <NavBar title="Toilets" />
-            <Map location={userLocation} toilets={toilets} />
+            <div className={styles.mapContainer}>
+                <Map location={userLocation} toilets={filteredToilets} />
+            </div>
+            <div className={styles.checkboxContainer}>
+                <Checkbox className={styles.toiletTypeCheckbox} label={"Free"} checked={freeCheckbox} onChange={freeCheckAction} />
+                <Checkbox className={styles.toiletTypeCheckbox} label={"Code"} checked={codeCheckbox} onChange={codeCheckAction}/>
+                <Checkbox className={styles.toiletTypeCheckbox} label={"Paid"} checked={paidCheckbox} onChange={paidCheckAction}/>
+            </div>
             <PrimaryButton title="Add" callback={addToiletForm} />
             {showAddToiletForm && <AddToiletForm onClose={handleFormClose} />}
         </>
