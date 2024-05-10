@@ -7,6 +7,7 @@ import {textfieldStyle} from "../styles/textFieldStyles";
 import SecondaryButton from "../components/buttons/secondaryButton";
 import {Navigator} from "../helpers/Navigator";
 import {APIService} from "../helpers/APIService";
+import TokenHelper from "../helpers/TokenHelper";
 
 function SignUp() {
     const [username, setUsername] = useState("");
@@ -19,7 +20,7 @@ function SignUp() {
     const [passwordError, setPasswordError] = useState(false);
     const [passwordAgainError, setPasswordAgainError] = useState(false);
 
-    const  {openHome} = Navigator();
+    const  {openHome, openToilets} = Navigator();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -56,8 +57,9 @@ function SignUp() {
             }
 
             let token = res.data.token;
+            TokenHelper.saveToken(token);
+            openToilets();
 
-            alert(status);
 
         }
     };
@@ -67,7 +69,7 @@ function SignUp() {
         setError(false);
     };
 
-    
+
     return (
         <>
             <NavBar title="Sign up" />

@@ -10,13 +10,12 @@ function Home(){
     const { openSignIn, openSignUp } = Navigator();
 
     return <>
-        <NavBar title="test"></NavBar>
+        <NavBar title="Welcome"></NavBar>
         <div id={styles.auth_wrapper}>
             <PrimaryButton title="Sign in" callback={openSignIn} />
             <br/>
             <SecondaryButton title="Sign up" callback={openSignUp} />
         </div>
-
     </>
 }
 

@@ -10,7 +10,7 @@ router.post("/add-toilet", async(req, res) => {
     await  addToilet(req,res);
 })
 
-router.get("/get-toilets", async(req, res) => {
+router.post("/get-toilets", async(req, res) => {
     await getToilets(req,res);
 })
 
