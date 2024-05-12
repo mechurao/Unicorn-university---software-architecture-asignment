@@ -57,7 +57,6 @@ export function APIService() {
     }
 
     async function logout(token){
-
         try{
             let response = await fetch(logoutURL, {
                method: 'POST',
