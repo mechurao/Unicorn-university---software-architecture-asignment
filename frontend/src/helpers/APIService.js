@@ -4,6 +4,7 @@ const toiletUrl = `${apiUrl}toilet/`;
 
 const signUpUrl = `${authUrl}sign-up`;
 const signInUrl = `${authUrl}sign-in`;
+const logoutURL = `${authUrl}logout`;
 
 const getToiletsUrl = `${toiletUrl}get-toilets`;
 
@@ -55,6 +56,30 @@ export function APIService() {
         }
     }
 
+    async function logout(token){
+
+        try{
+            let response = await fetch(logoutURL, {
+               method: 'POST',
+               body: {
+                   "token":token
+               },
+
+            });
+            const  data = response.json();
+            return {
+                status:response.status
+            }
+
+        }catch (err){
+            console.error("Logout error");
+            return{
+              status:500
+            };
+        }
+    }
+
+
     async function getToilets(token, location, radius) {
         try {
             let response = await fetch(getToiletsUrl, {
@@ -94,5 +119,5 @@ export function APIService() {
         }
     }
 
-    return { signUp, signIn, getToilets };
+    return { signUp, signIn,logout, getToilets };
 }

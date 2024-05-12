@@ -9,8 +9,13 @@ import Checkbox from '@mui/joy/Checkbox';
 import styles from "../styles/toilets.module.css";
 import {Button} from "@mui/material";
 import SecondaryButton from "../components/buttons/secondaryButton";
+import {Navigator} from "../helpers/Navigator";
 
 function Toilets() {
+    const { getToilets, logout} = APIService();
+    const  {openHome} = Navigator();
+
+
     const defaultLocation = {
         lat: 7.2905715, // default latitude
         lng: 80.6337262, // default longitude
@@ -28,7 +33,7 @@ function Toilets() {
 
     const radius = 10000; // in meters
 
-    const { getToilets } = APIService();
+
 
     const addToiletForm = () => {
         setShowAddToiletForm(true);
@@ -38,8 +43,21 @@ function Toilets() {
         setShowAddToiletForm(false);
     };
 
-    const logoutUser = () => {
-        alert("Log out");
+    const logoutUser = async () => {
+        let token = TokenHelper.getToken();
+
+        try{
+            const response = await logout(token);
+
+            if(response.status === 200){
+                //TokenHelper.deleteToken();
+                //openHome();
+            }
+        }catch (e) {
+            alert("Logout error");
+            console.error(e);
+        }
+
     }
 
     const fetchToilets = async (location) => {
@@ -115,6 +133,14 @@ function Toilets() {
     useEffect(() => {
         applyFilters(toilets);
     }, [freeCheckbox, codeCheckbox, paidCheckbox]);
+
+    let token = TokenHelper.getToken();
+    if(token === undefined){
+        console.log("No token found");
+        openHome();
+        return ;
+    }
+
 
     return (
         <>
