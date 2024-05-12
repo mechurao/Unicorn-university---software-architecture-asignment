@@ -19,15 +19,38 @@ export function APIService() {
             });
 
             const data = await response.json();
-            const result = {
+            return {
                 status: response.status,
                 data: data
             };
-            return result;
         } catch (error) {
-            console.error("There was a problem with the fetch operation:", error);
+            console.error("Sign up error", error);
             return {
                 status: 500,
+            };
+        }
+    }
+
+    async function signIn(user){
+        try{
+            let response = await  fetch(signInUrl,{
+               method: 'POST',
+               body: JSON.stringify(user),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = response.json();
+            return {
+                status: response.status,
+                data: data
+            };
+
+        }catch (e) {
+            console.error(`Sign in error : ${e}`);
+            return {
+                status:500,
             };
         }
     }
@@ -47,7 +70,6 @@ export function APIService() {
             });
 
             if (!response.ok) {
-                console.error(`Server Error: ${response.status}`);
                 return {
                     status: response.status,
                     data: {
@@ -72,5 +94,5 @@ export function APIService() {
         }
     }
 
-    return { signUp, getToilets };
+    return { signUp, signIn, getToilets };
 }

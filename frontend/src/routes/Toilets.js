@@ -7,6 +7,8 @@ import { APIService } from "../helpers/APIService";
 import TokenHelper from "../helpers/TokenHelper";
 import Checkbox from '@mui/joy/Checkbox';
 import styles from "../styles/toilets.module.css";
+import {Button} from "@mui/material";
+import SecondaryButton from "../components/buttons/secondaryButton";
 
 function Toilets() {
     const defaultLocation = {
@@ -35,6 +37,10 @@ function Toilets() {
     const handleFormClose = () => {
         setShowAddToiletForm(false);
     };
+
+    const logoutUser = () => {
+        alert("Log out");
+    }
 
     const fetchToilets = async (location) => {
         const token = TokenHelper.getToken();
@@ -94,7 +100,6 @@ function Toilets() {
         getUserLocationAndFetchToilets();
     }, []);
 
-    // Checkbox actions
     const freeCheckAction = (event) => {
         setFreeCheckbox(event.target.checked);
     };
@@ -107,14 +112,13 @@ function Toilets() {
         setPaidCheckbox(event.target.checked);
     }
 
-    // Apply filters whenever the checkbox state changes
     useEffect(() => {
         applyFilters(toilets);
     }, [freeCheckbox, codeCheckbox, paidCheckbox]);
 
     return (
         <>
-            <NavBar title="Toilets" />
+            <NavBar title="Toilets" leftAction={ <SecondaryButton title="Log out" callback={logoutUser} width={100} height={40}/>}/>
             <div className={styles.mapContainer}>
                 <Map location={userLocation} toilets={filteredToilets} />
             </div>
