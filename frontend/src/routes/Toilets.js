@@ -7,14 +7,13 @@ import { APIService } from "../helpers/APIService";
 import TokenHelper from "../helpers/TokenHelper";
 import Checkbox from '@mui/joy/Checkbox';
 import styles from "../styles/toilets.module.css";
-import {Button} from "@mui/material";
+import { Button } from "@mui/material";
 import SecondaryButton from "../components/buttons/secondaryButton";
-import {Navigator} from "../helpers/Navigator";
+import { Navigator } from "../helpers/Navigator";
 
 function Toilets() {
-    const { getToilets, logout} = APIService();
-    const  {openHome} = Navigator();
-
+    const { getToilets, logout, checkToken } = APIService();
+    const { openHome } = Navigator();
 
     const defaultLocation = {
         lat: 7.2905715, // default latitude
@@ -33,8 +32,6 @@ function Toilets() {
 
     const radius = 10000; // in meters
 
-
-
     const addToiletForm = () => {
         setShowAddToiletForm(true);
     };
@@ -45,19 +42,16 @@ function Toilets() {
 
     const logoutUser = async () => {
         let token = TokenHelper.getToken();
-
-        try{
+        try {
             const response = await logout(token);
-
-            if(response.status === 200){
-                //TokenHelper.deleteToken();
-                //openHome();
+            if (response.status === 200) {
+                TokenHelper.deleteToken();
+                openHome();
             }
-        }catch (e) {
+        } catch (e) {
             alert("Logout error");
             console.error(e);
         }
-
     }
 
     const fetchToilets = async (location) => {
@@ -93,7 +87,18 @@ function Toilets() {
     };
 
     useEffect(() => {
-        const getUserLocationAndFetchToilets = () => {
+        const getUserLocationAndFetchToilets = async () => {
+            let token = TokenHelper.getToken();
+            if (token === undefined) {
+                openHome();
+                return;
+            }
+            let valid = await checkToken(token);
+            if (!valid) {
+                openHome();
+                return;
+            }
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -134,24 +139,16 @@ function Toilets() {
         applyFilters(toilets);
     }, [freeCheckbox, codeCheckbox, paidCheckbox]);
 
-    let token = TokenHelper.getToken();
-    if(token === undefined){
-        console.log("No token found");
-        openHome();
-        return ;
-    }
-
-
     return (
         <>
-            <NavBar title="Toilets" leftAction={ <SecondaryButton title="Log out" callback={logoutUser} width={100} height={40}/>}/>
+            <NavBar title="Toilets" leftAction={<SecondaryButton title="Log out" callback={logoutUser} width={100} height={40} />} />
             <div className={styles.mapContainer}>
                 <Map location={userLocation} toilets={filteredToilets} />
             </div>
             <div className={styles.checkboxContainer}>
                 <Checkbox className={styles.toiletTypeCheckbox} label={"Free"} checked={freeCheckbox} onChange={freeCheckAction} />
-                <Checkbox className={styles.toiletTypeCheckbox} label={"Code"} checked={codeCheckbox} onChange={codeCheckAction}/>
-                <Checkbox className={styles.toiletTypeCheckbox} label={"Paid"} checked={paidCheckbox} onChange={paidCheckAction}/>
+                <Checkbox className={styles.toiletTypeCheckbox} label={"Code"} checked={codeCheckbox} onChange={codeCheckAction} />
+                <Checkbox className={styles.toiletTypeCheckbox} label={"Paid"} checked={paidCheckbox} onChange={paidCheckAction} />
             </div>
             <PrimaryButton title="Add" callback={addToiletForm} />
             {showAddToiletForm && <AddToiletForm onClose={handleFormClose} />}

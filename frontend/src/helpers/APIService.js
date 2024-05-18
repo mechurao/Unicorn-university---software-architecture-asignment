@@ -5,6 +5,7 @@ const toiletUrl = `${apiUrl}toilet/`;
 const signUpUrl = `${authUrl}sign-up`;
 const signInUrl = `${authUrl}sign-in`;
 const logoutURL = `${authUrl}logout`;
+const checkTokenUrl = `${authUrl}check-token`;
 
 const getToiletsUrl = `${toiletUrl}get-toilets`;
 
@@ -60,18 +61,17 @@ export function APIService() {
         try{
             let response = await fetch(logoutURL, {
                method: 'POST',
-               body: {
-                   "token":token
-               },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+               body: JSON.stringify({token}),
 
             });
-            const  data = response.json();
             return {
                 status:response.status
             }
-
         }catch (err){
-            console.error("Logout error");
+            console.error(`Logout error : ${err}`);
             return{
               status:500
             };
@@ -92,7 +92,6 @@ export function APIService() {
                     'Content-Type': 'application/json'
                 }
             });
-
             if (!response.ok) {
                 return {
                     status: response.status,
@@ -101,7 +100,6 @@ export function APIService() {
                     }
                 };
             }
-
             const data = await response.json();
             return {
                 status: response.status,
@@ -118,5 +116,28 @@ export function APIService() {
         }
     }
 
-    return { signUp, signIn,logout, getToilets };
+    async function checkToken(token) {
+        try{
+            let response = await fetch(checkTokenUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({token}),
+            });
+            return  response.status === 200;
+
+        }catch(err){
+            console.error("Checking token error ", err);
+            return false;
+        }
+    }
+
+    return {
+        signUp,
+        signIn,
+        logout,
+        getToilets,
+        checkToken
+    };
 }
