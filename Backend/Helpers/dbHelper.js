@@ -88,18 +88,19 @@ async function saveToilet(tID, toilet){
     try{
         await connection.beginTransaction();
         // save toilet
-        await  connection.performDbQuery(INSERT_TOILET_QUERY,[tID, toilet.name, toilet.type, toilet.description, toilet.latitude, toilet.longitude]);
+        await  connection.query(INSERT_TOILET_QUERY,[tID, toilet.name, toilet.type, toilet.description, toilet.location.lat, toilet.location.lng]);
 
         if(toilet.type === ToiletType.code){
-            await  connection.performDbQuery(INSERT_TOILET_CODE_QUERY,[tID, toilet.code]);
+            await  connection.query(INSERT_TOILET_CODE_QUERY,[tID, toilet.code]);
         }
 
         if(toilet.type === ToiletType.paid){
-            await connection.performDbQuery(INSERT_TOILET_PRICE_QUERY,[tID, toilet.price.amount, toilet.price.currency]);
+            await connection.query(INSERT_TOILET_PRICE_QUERY,[tID, toilet.price.amount, toilet.price.currency]);
         }
         await  connection.commit();
         return true;
     }catch (e){
+        console.log(`Saving toilet error : ${e}`);
         await connection.rollback();
         return  false
     }finally {

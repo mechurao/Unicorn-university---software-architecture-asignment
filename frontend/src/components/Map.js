@@ -9,14 +9,12 @@ const mapContainerStyle = {
     height: '80vh',
 };
 
-// Barvy markerů podle typu toalety
 const toiletMarkerColors = {
     0: 'red',    // Free
     1: 'orange', // Code
     2: 'green',  // Paid
 };
 
-// Funkce pro vytvoření ikony markeru
 function createToiletIcon(color) {
     return {
         path: 'M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z',
@@ -177,8 +175,7 @@ function Map({ location, toilets }) {
                 mapContainerStyle={mapContainerStyle}
                 zoom={12}
                 center={location}
-                onLoad={handleMapLoad}
-            >
+                onLoad={handleMapLoad}>
                 <Circle
                     center={location}
                     radius={100}
@@ -203,8 +200,6 @@ function Map({ location, toilets }) {
                         onClick={() => setSelected(toilet)}
                     />
                 ))}
-
-                {/* InfoWindow pro vybranou toaletu */}
                 {selected && (
                     <InfoWindow
                         position={{ lat: selected.latitude, lng: selected.longitude }}
@@ -219,14 +214,11 @@ function Map({ location, toilets }) {
                     </InfoWindow>
                 )}
             </GoogleMap>
-
-            {/* Tlačítko pro nalezení nejbližší toalety */}
             <Button
                 variant="contained"
                 color="primary"
                 onClick={handleFindNearest}
-                style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '20px' }}
-            >
+                style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '20px' }}>
                 Find nearest
             </Button>
         </div>

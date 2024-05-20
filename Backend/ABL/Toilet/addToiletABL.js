@@ -10,7 +10,13 @@ function inputValid(token, toilet){
         return false;
     }
 
-    if(toilet.name === undefined || toilet.type === undefined || toilet.description === undefined || toilet.latitude === undefined || toilet.longitude === undefined){
+    if(toilet.name === undefined ||
+        toilet.type === undefined ||
+        toilet.description === undefined ||
+        toilet.location === undefined ||
+        toilet.location.lat === undefined ||
+        toilet.location.lng === undefined
+    ){
         return false;
     }
 
@@ -36,11 +42,15 @@ async  function addToilet(req, res){
 
     // input parameters check
     if(!inputValid(token,toilet)){
+        console.log("missing parameters");
+        console.log("token : "+token);
+        console.log("toilet : "+JSON.stringify(toilet));
         return res.sendStatus(MISSING_PARAMETERS_CODE);
     }
 
     // validate user token
     if(!await isTokenValid(token)){
+        console.log("invalid token");
         return res.sendStatus(INVALID_TOKEN_CODE);
     }
 
@@ -49,6 +59,7 @@ async  function addToilet(req, res){
 
     // insert data
     let insert = await  saveToilet(tID, toilet);
+
     if(!insert){
         return res.sendStatus(SERVER_ERROR_CODE);
     }

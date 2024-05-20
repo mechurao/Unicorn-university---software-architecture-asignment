@@ -1,8 +1,22 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Modal from './Modal';
-import { GoogleMap, useLoadScript } from '@react-google-maps/api';
-import { ToggleButton, ToggleButtonGroup, TextField, Button, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import {GoogleMap, useLoadScript} from '@react-google-maps/api';
+import {
+    Button,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextField,
+    ToggleButton,
+    ToggleButtonGroup
+} from '@mui/material';
 import styles from '../styles/addToiletForm.module.css';
+import {Currency} from "./objects/Currency";
+import {APIService} from "../helpers/APIService";
+import TokenHelper from "../helpers/TokenHelper";
+
+const { addToilet } = APIService();
 
 const libraries = ['places'];
 const mapContainerStyle = {
@@ -23,11 +37,11 @@ function AddToiletForm({ onClose }) {
 
     const mapRef = useRef();
     const [formData, setFormData] = useState({
+        type: "0",
         name: '',
         description: '',
-        type: 'Free',
         price: '',
-        currency: 'EUR',
+        currency: Currency.eur, // Initialize with a valid CurrencyClass object
         accessCode: '',
     });
     const [mapCenter, setMapCenter] = useState(defaultLocation);
@@ -38,23 +52,33 @@ function AddToiletForm({ onClose }) {
         if (!shouldRender) {
             const timer = setTimeout(() => {
                 onClose();
-            }, 800); // Trvání animace zavírání
+            }, 800);
             return () => clearTimeout(timer);
         }
     }, [shouldRender, onClose]);
 
-    function handleFormSubmit(event) {
+    async function handleFormSubmit(event) {
         event.preventDefault();
         const center = mapRef.current.getCenter();
         setMapCenter({ lat: center.lat(), lng: center.lng() });
-        console.log('Form Data:', { ...formData, location: mapCenter });
-        setClosing(true);
-        setShouldRender(false);
+        let result = await processData();
+        if(result){
+            alert("success");
+            setClosing(true);
+            setShouldRender(false);
+        }else{
+            alert("Error");
+        }
+
     }
 
     function handleInputChange(event) {
         const { name, value } = event.target;
-        setFormData({ ...formData, [name]: value });
+        if (name === 'currency') {
+            setFormData({ ...formData, [name]: Currency[value.toLowerCase()] });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     }
 
     function handleTypeChange(event, newType) {
@@ -73,6 +97,42 @@ function AddToiletForm({ onClose }) {
     if (!isLoaded) {
         return <div>Loading maps</div>;
     }
+
+
+    async function processData() {
+        const data = {
+            type: formData.type,
+            name: formData.name,
+            description: formData.description,
+            location: {
+                lat: mapCenter.lat,
+                lng: mapCenter.lng
+            },
+        };
+
+        if (formData.type === "1") {
+            data.code = formData.accessCode;
+        }
+
+        if (formData.type === "2") {
+            data.price = {
+                amount: formData.price,
+                currency: formData.currency.id
+            };
+        }
+
+        let token = TokenHelper.getToken();
+        try {
+            return  await addToilet(data, token);
+        } catch (error) {
+            console.error('Failed to add toilet:', error);
+            return false;
+        }
+    }
+
+
+
+    const currencyArray = Object.values(Currency);
 
     return (
         shouldRender && (
@@ -102,12 +162,24 @@ function AddToiletForm({ onClose }) {
                         exclusive
                         onChange={handleTypeChange}
                     >
-                        <ToggleButton value="Free">Free</ToggleButton>
-                        <ToggleButton value="Paid">Paid</ToggleButton>
-                        <ToggleButton value="Code access">Code Access</ToggleButton>
+                        <ToggleButton value="0">Free</ToggleButton>
+                        <ToggleButton value="1">Code Access</ToggleButton>
+                        <ToggleButton value="2">Paid</ToggleButton>
                     </ToggleButtonGroup>
 
-                    {formData.type === 'Paid' && (
+
+                    {formData.type === "1" && (
+                        <TextField
+                            label="Access Code"
+                            name="accessCode"
+                            value={formData.accessCode}
+                            onChange={handleInputChange}
+                            required
+                        />
+                    )}
+
+
+                    {formData.type === "2" && (
                         <>
                             <TextField
                                 label="Price"
@@ -122,26 +194,17 @@ function AddToiletForm({ onClose }) {
                                 <InputLabel>Currency</InputLabel>
                                 <Select
                                     name="currency"
-                                    value={formData.currency}
-                                    onChange={handleInputChange}
-                                >
-                                    <MenuItem value="EUR">EUR</MenuItem>
-                                    <MenuItem value="USD">USD</MenuItem>
-                                    <MenuItem value="GBP">GBP</MenuItem>
+                                    value={formData.currency.name}
+                                    onChange={handleInputChange}>
+                                    {currencyArray.map(currency => (
+                                        <MenuItem key={currency.id} value={currency.name}>{currency.name}</MenuItem>
+                                    ))}
                                 </Select>
                             </FormControl>
                         </>
                     )}
 
-                    {formData.type === 'Code access' && (
-                        <TextField
-                            label="Access Code"
-                            name="accessCode"
-                            value={formData.accessCode}
-                            onChange={handleInputChange}
-                            required
-                        />
-                    )}
+
 
                     <label>Location:</label>
                     <div className={styles.mapContainer}>

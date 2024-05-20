@@ -8,6 +8,7 @@ const logoutURL = `${authUrl}logout`;
 const checkTokenUrl = `${authUrl}check-token`;
 
 const getToiletsUrl = `${toiletUrl}get-toilets`;
+const addToiletUrl = `${toiletUrl}add-toilet`
 
 export function APIService() {
     async function signUp(user) {
@@ -133,11 +134,35 @@ export function APIService() {
         }
     }
 
+    async function addToilet(toilet, token) {
+        try {
+            let response = await fetch(addToiletUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    toilet: toilet,
+                    token: token
+                })
+            });
+            return response.status === 200;
+        } catch (err) {
+            console.error("Toilet add error:", err);
+            return false;
+        }
+    }
+
+
+
+
+
     return {
         signUp,
         signIn,
         logout,
         getToilets,
-        checkToken
+        checkToken,
+        addToilet
     };
 }
