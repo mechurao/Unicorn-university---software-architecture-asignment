@@ -8,7 +8,8 @@ const logoutURL = `${authUrl}logout`;
 const checkTokenUrl = `${authUrl}check-token`;
 
 const getToiletsUrl = `${toiletUrl}get-toilets`;
-const addToiletUrl = `${toiletUrl}add-toilet`
+const addToiletUrl = `${toiletUrl}add-toilet`;
+const toiletDetailUrl = `${toiletUrl}/get-detail`;
 
 export function APIService() {
     async function signUp(user) {
@@ -44,7 +45,8 @@ export function APIService() {
                 }
             });
 
-            const data = response.json();
+            const data = await response.json();
+
             return {
                 status: response.status,
                 data: data
@@ -153,9 +155,27 @@ export function APIService() {
         }
     }
 
-
-
-
+    async function getToiletDetail(tID, token){
+        try{
+            let response = await  fetch(toiletDetailUrl, {
+               method: 'POST',
+               headers:{
+                   'Content-Type': 'application/json'
+               },
+                body: JSON.stringify({
+                    token:token,
+                    id:tID
+                })
+            });
+            if(response.status !== 200){
+                return undefined;
+            }
+            return  await response.json();
+        }catch (err){
+            console.error("Toilet detail error:", err);
+            return undefined;
+        }
+    }
 
     return {
         signUp,
@@ -163,6 +183,7 @@ export function APIService() {
         logout,
         getToilets,
         checkToken,
-        addToilet
+        addToilet,
+        getToiletDetail
     };
 }

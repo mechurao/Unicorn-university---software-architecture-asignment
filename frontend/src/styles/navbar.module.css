@@ -9,17 +9,25 @@
 
 .navBar h2 {
     color: white;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    margin: 0;
 }
 
 .leftAction {
     position: absolute;
-    left: 0;
-    top: 0;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     height: 100%;
     display: flex;
     align-items: center;
-    padding-left: 10px;
+}
+
+.rightAction {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 100%;
+    display: flex;
+    align-items: center;
 }

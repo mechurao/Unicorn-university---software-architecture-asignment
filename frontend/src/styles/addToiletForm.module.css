@@ -1,51 +1,32 @@
-/* addToiletForm.module.css */
-@keyframes revealingIn {
-    0% {
-        transform: scaleY(0.01) scaleX(0);
-    }
-    50% {
-        transform: scaleY(0.01) scaleX(1);
-    }
-    100% {
-        transform: scaleY(1) scaleX(1);
-    }
-}
 
-@keyframes revealingOut {
-    0% {
-        transform: scaleY(1) scaleX(1);
-    }
-    50% {
-        transform: scaleY(0.01) scaleX(1);
-    }
-    100% {
-        transform: scaleY(0.01) scaleX(0);
-    }
+
+.modal {
+    width: 80%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    margin: 0 auto;
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    animation: revealingIn 0.8s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards;
-}
-
-.revealingIn {
-    animation: revealingIn 0.8s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards;
-}
-
-.revealingOut {
-    animation: revealingOut 0.8s cubic-bezier(0.165, 0.840, 0.440, 1.000) forwards;
+    gap: 16px;
 }
 
 .buttonGroup {
     display: flex;
     justify-content: space-between;
+    margin-top: 20px;
 }
 
 .mapContainer {
     position: relative;
-    margin: 10px 0;
+    width: 100%;
+    height: 300px;
+    margin-top: 16px;
 }
 
 .mapPin {
@@ -54,8 +35,7 @@
     left: 50%;
     width: 20px;
     height: 20px;
-    background: red;
+    background-color: red;
+    transform: translate(-50%, -50%);
     border-radius: 50%;
-    transform: translate(-50%, -100%);
-    z-index: 1;
 }

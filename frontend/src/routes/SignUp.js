@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import TextField from '@mui/material/TextField';
 import PrimaryButton from "../components/buttons/primaryButton";
 import NavBar from "../components/NavBar";
-import styles from "../styles/sign-up.module.css"
-import {textfieldStyle} from "../styles/textFieldStyles";
+import styles from "../styles/sign-up.module.css";
+import { textfieldStyle } from "../styles/textFieldStyles";
 import SecondaryButton from "../components/buttons/secondaryButton";
-import {Navigator} from "../helpers/Navigator";
-import {APIService} from "../helpers/APIService";
+import { Navigator } from "../helpers/Navigator";
+import { APIService } from "../helpers/APIService";
 import TokenHelper from "../helpers/TokenHelper";
 
 function SignUp() {
@@ -20,11 +20,10 @@ function SignUp() {
     const [passwordError, setPasswordError] = useState(false);
     const [passwordAgainError, setPasswordAgainError] = useState(false);
 
-    const  {openHome, openToilets} = Navigator();
+    const { openHome, openToilets } = Navigator();
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
 
         setUsernameError(!username);
         setEmailError(!email);
@@ -47,11 +46,11 @@ function SignUp() {
                 username: username,
                 email: email,
                 password: password
-            }
-            const {signUp} = APIService();
+            };
+            const { signUp } = APIService();
             let res = await signUp(user);
             let status = res.status;
-            if(status !== 200){
+            if (status !== 200) {
                 alert("Server error");
                 return;
             }
@@ -59,8 +58,6 @@ function SignUp() {
             let token = res.data.token;
             TokenHelper.saveToken(token);
             openToilets();
-
-
         }
     };
 
@@ -68,7 +65,6 @@ function SignUp() {
         setValue(event.target.value);
         setError(false);
     };
-
 
     return (
         <>
@@ -79,40 +75,40 @@ function SignUp() {
                     variant="outlined"
                     label="Username"
                     error={usernameError}
-                    sx = {textfieldStyle}
+                    sx={textfieldStyle}
                     helperText={usernameError ? "Username is required" : ""}
                     onChange={handleChange(setUsername, setUsernameError)}
-                /><br/>
+                /><br />
                 <TextField
                     id="email-input"
                     variant="outlined"
                     label="E-mail"
                     type="email"
                     error={emailError}
-                    sx = {textfieldStyle}
+                    sx={textfieldStyle}
                     helperText={emailError ? "Email is required" : ""}
                     onChange={handleChange(setEmail, setEmailError)}
-                /><br/>
+                /><br />
                 <TextField
                     id="password-input"
                     variant="outlined"
                     label="Password"
                     type="password"
                     error={passwordError}
-                    sx = {textfieldStyle}
+                    sx={textfieldStyle}
                     helperText={passwordError ? "Password is required" : ""}
                     onChange={handleChange(setPassword, setPasswordError)}
-                /><br/>
+                /><br />
                 <TextField
                     id="password-again-input"
                     variant="outlined"
                     label="Password again"
                     type="password"
                     error={passwordAgainError}
-                    sx = {textfieldStyle}
+                    sx={textfieldStyle}
                     helperText={passwordAgainError ? "Please confirm your password" : ""}
                     onChange={handleChange(setPasswordAgain, setPasswordAgainError)}
-                /><br/>
+                /><br />
                 <PrimaryButton
                     title="Create an account"
                     inputType="submit"

@@ -1,6 +1,6 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Modal from './Modal';
-import {GoogleMap, useLoadScript} from '@react-google-maps/api';
+import { GoogleMap, useLoadScript } from '@react-google-maps/api';
 import {
     Button,
     FormControl,
@@ -12,8 +12,10 @@ import {
     ToggleButtonGroup
 } from '@mui/material';
 import styles from '../styles/addToiletForm.module.css';
-import {Currency} from "./objects/Currency";
-import {APIService} from "../helpers/APIService";
+import { Currency } from "./objects/Currency";
+import { APIService } from "../helpers/APIService";
+
+import { GOOGLE_MAPS_API_KEY } from "../values/keys";
 import TokenHelper from "../helpers/TokenHelper";
 
 const { addToilet } = APIService();
@@ -31,7 +33,7 @@ const defaultLocation = {
 
 function AddToiletForm({ onClose }) {
     const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: 'AIzaSyBP8NPW4lmtUS2JM47Qs_ViycFVkzQyaCY',
+        googleMapsApiKey: GOOGLE_MAPS_API_KEY,
         libraries,
     });
 
@@ -41,7 +43,7 @@ function AddToiletForm({ onClose }) {
         name: '',
         description: '',
         price: '',
-        currency: Currency.eur, // Initialize with a valid CurrencyClass object
+        currency: Currency.eur,
         accessCode: '',
     });
     const [mapCenter, setMapCenter] = useState(defaultLocation);
@@ -57,19 +59,35 @@ function AddToiletForm({ onClose }) {
         }
     }, [shouldRender, onClose]);
 
+    useEffect(() => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    setMapCenter(userLocation);
+                },
+                () => {
+                    console.error("Error fetching user location");
+                }
+            );
+        }
+    }, []);
+
     async function handleFormSubmit(event) {
         event.preventDefault();
         const center = mapRef.current.getCenter();
         setMapCenter({ lat: center.lat(), lng: center.lng() });
         let result = await processData();
-        if(result){
+        if (result) {
             alert("success");
             setClosing(true);
             setShouldRender(false);
-        }else{
+        } else {
             alert("Error");
         }
-
     }
 
     function handleInputChange(event) {
@@ -98,7 +116,6 @@ function AddToiletForm({ onClose }) {
         return <div>Loading maps</div>;
     }
 
-
     async function processData() {
         const data = {
             type: formData.type,
@@ -123,14 +140,12 @@ function AddToiletForm({ onClose }) {
 
         let token = TokenHelper.getToken();
         try {
-            return  await addToilet(data, token);
+            return await addToilet(data, token);
         } catch (error) {
             console.error('Failed to add toilet:', error);
             return false;
         }
     }
-
-
 
     const currencyArray = Object.values(Currency);
 
@@ -144,6 +159,7 @@ function AddToiletForm({ onClose }) {
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
+                        fullWidth
                         required
                     />
                     <TextField
@@ -153,6 +169,7 @@ function AddToiletForm({ onClose }) {
                         onChange={handleInputChange}
                         multiline
                         rows={3}
+                        fullWidth
                         required
                     />
                     <InputLabel>Type:</InputLabel>
@@ -161,12 +178,12 @@ function AddToiletForm({ onClose }) {
                         value={formData.type}
                         exclusive
                         onChange={handleTypeChange}
+                        fullWidth
                     >
                         <ToggleButton value="0">Free</ToggleButton>
                         <ToggleButton value="1">Code Access</ToggleButton>
                         <ToggleButton value="2">Paid</ToggleButton>
                     </ToggleButtonGroup>
-
 
                     {formData.type === "1" && (
                         <TextField
@@ -174,10 +191,10 @@ function AddToiletForm({ onClose }) {
                             name="accessCode"
                             value={formData.accessCode}
                             onChange={handleInputChange}
+                            fullWidth
                             required
                         />
                     )}
-
 
                     {formData.type === "2" && (
                         <>
@@ -188,6 +205,7 @@ function AddToiletForm({ onClose }) {
                                 value={formData.price}
                                 onChange={handleInputChange}
                                 inputProps={{ min: 0 }}
+                                fullWidth
                                 required
                             />
                             <FormControl fullWidth required>
@@ -203,8 +221,6 @@ function AddToiletForm({ onClose }) {
                             </FormControl>
                         </>
                     )}
-
-
 
                     <label>Location:</label>
                     <div className={styles.mapContainer}>

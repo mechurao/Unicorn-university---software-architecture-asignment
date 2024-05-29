@@ -1,14 +1,17 @@
 import {appColor} from "../../values/colors";
 
 const buttonStyles = {
-borderRadius:'20px',
-    width: '500px',
-    height: '40px'
+    borderRadius: '20px',
+    width: '500px' ,
+    height: '40px',
+    fontSize: '15px'
 };
+
 
 export  const primaryButtonStyle = {
     ...buttonStyles,
-    backgroundColor:appColor
+    backgroundColor:appColor,
+    color: 'white',
 }
 
 export const secondaryButtonStyle = {

@@ -17,6 +17,7 @@ function SignIn(){
     const [passwordError, setPasswordError] = useState(false);
 
     const  {openHome, openToilets} = Navigator();
+    const  {signIn} = APIService();
 
     const handleSubmit = async(event) => {
         event.preventDefault();
@@ -34,15 +35,17 @@ function SignIn(){
                 email: email,
                 password:password
             }
-            const  {signIn} = APIService();
+
             let res = await  signIn(user);
             let status = res.status;
             if(status !== 200){
                 alert("An error occured");
                 return;
             }
+
             let token = res.data.token;
             TokenHelper.saveToken(token);
+
             openToilets();
         }
     };

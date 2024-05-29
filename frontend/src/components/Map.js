@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { GoogleMap, useLoadScript, MarkerF, InfoWindow, Circle, DirectionsRenderer } from '@react-google-maps/api';
 import { Rating, Dialog, DialogTitle, DialogContent, IconButton, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import ToiletDetail from "./ToiletDetail";
+import { GOOGLE_MAPS_API_KEY } from "../values/keys";
 
 const libraries = ['places'];
 const mapContainerStyle = {
@@ -27,7 +29,7 @@ function createToiletIcon(color) {
 }
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Poloměr Země v kilometrech
+    const R = 6371;
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a = Math.sin(dLat / 2) * Math.sin(dLon / 2) +
@@ -37,9 +39,9 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-function Map({ location, toilets }) {
+function Map({ location, toilets, onMapIdle, mapRef }) {
     const { isLoaded, loadError } = useLoadScript({
-        googleMapsApiKey: 'AIzaSyBP8NPW4lmtUS2JM47Qs_ViycFVkzQyaCY',
+        googleMapsApiKey: GOOGLE_MAPS_API_KEY,
         libraries,
     });
 
@@ -49,13 +51,24 @@ function Map({ location, toilets }) {
     const [dialogOpen, setDialogOpen] = useState(false);
     const [distance, setDistance] = useState(0);
     const [filteredToilets, setFilteredToilets] = useState(toilets);
-    const mapRef = useRef(null);
+    const [showToiletDetailForm, setShowToiletDetailForm] = useState(false);
 
     const handleMapLoad = (map) => {
         mapRef.current = map;
     };
 
+    const toiletDetailForm = (toilet) => {
+        setSelected(toilet);
+        setShowToiletDetailForm(true);
+    };
+
+    const handleCloseToiletDetailForm = () => {
+        setShowToiletDetailForm(false);
+        setSelected(null);
+    };
+
     const handleFindNearest = () => {
+        console.log('Finding nearest toilet...');
         let minDistance = Infinity;
         let closestToilet = null;
 
@@ -73,31 +86,37 @@ function Map({ location, toilets }) {
             }
         });
 
-        setNearestToilet(closestToilet);
-        setDistance(minDistance);
-        setDialogOpen(true);
+        if (closestToilet) {
+            setNearestToilet(closestToilet);
+            setDistance(minDistance);
+            setDialogOpen(true);
 
-        const directionsService = new window.google.maps.DirectionsService();
-        directionsService.route(
-            {
-                origin: { lat: location.lat, lng: location.lng },
-                destination: { lat: closestToilet.latitude, lng: closestToilet.longitude },
-                travelMode: window.google.maps.TravelMode.WALKING,
-            },
-            (result, status) => {
-                if (status === window.google.maps.DirectionsStatus.OK) {
-                    setDirections(result);
-                } else {
-                    console.error(`Error fetching directions ${result}`);
+            const directionsService = new window.google.maps.DirectionsService();
+            directionsService.route(
+                {
+                    origin: { lat: location.lat, lng: location.lng },
+                    destination: { lat: closestToilet.latitude, lng: closestToilet.longitude },
+                    travelMode: window.google.maps.TravelMode.WALKING,
+                },
+                (result, status) => {
+                    if (status === window.google.maps.DirectionsStatus.OK) {
+                        setDirections(result);
+                    } else {
+                        console.error(`Error fetching directions ${result}`);
+                    }
                 }
+            );
+
+            setFilteredToilets([closestToilet]);
+
+            if (mapRef.current) {
+                mapRef.current.panTo({ lat: closestToilet.latitude, lng: closestToilet.longitude });
+                mapRef.current.setZoom(15);
             }
-        );
-
-        setFilteredToilets([closestToilet]);
-
-        if (mapRef.current) {
-            mapRef.current.panTo({ lat: closestToilet.latitude, lng: closestToilet.longitude });
-            mapRef.current.setZoom(15);
+        } else {
+            alert('No toilet found');
+            setNearestToilet(null);
+            setFilteredToilets(toilets);
         }
     };
 
@@ -114,10 +133,8 @@ function Map({ location, toilets }) {
 
     const renderExtraInfo = (toilet) => {
         if (toilet.type === 0) {
-            // Typ 0: Zdarma
             return null;
         } else if (toilet.type === 2) {
-            // Typ 2: Placená
             return (
                 <p>
                     Price for usage:
@@ -125,7 +142,6 @@ function Map({ location, toilets }) {
                 </p>
             );
         } else if (toilet.type === 1) {
-            // Typ 1: S kódem
             return (
                 <p>
                     <strong>Code: </strong>
@@ -137,7 +153,9 @@ function Map({ location, toilets }) {
     };
 
     useEffect(() => {
-        setFilteredToilets(toilets);
+        if (toilets) {
+            setFilteredToilets(toilets);
+        }
     }, [toilets]);
 
     if (loadError) {
@@ -161,8 +179,7 @@ function Map({ location, toilets }) {
                             right: 8,
                             top: 8,
                             color: (theme) => theme.palette.grey[500],
-                        }}
-                    >
+                        }} >
                         <CloseIcon />
                     </IconButton>
                 </DialogTitle>
@@ -175,7 +192,9 @@ function Map({ location, toilets }) {
                 mapContainerStyle={mapContainerStyle}
                 zoom={12}
                 center={location}
-                onLoad={handleMapLoad}>
+                onLoad={handleMapLoad}
+                onIdle={onMapIdle}
+            >
                 <Circle
                     center={location}
                     radius={100}
@@ -207,9 +226,16 @@ function Map({ location, toilets }) {
                     >
                         <div>
                             <h2>{selected.name}</h2>
-                            <p>Popis: {selected.description}</p>
+                            <p>{selected.description}</p>
                             {renderExtraInfo(selected)}
-                            <Rating name="read-only" value={3.6} precision={0.1} readOnly />
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={() => toiletDetailForm(selected)}
+                                style={{ float: 'right' }}
+                            >
+                                More Info
+                            </Button>
                         </div>
                     </InfoWindow>
                 )}
@@ -221,6 +247,7 @@ function Map({ location, toilets }) {
                 style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', bottom: '20px' }}>
                 Find nearest
             </Button>
+            {showToiletDetailForm && <ToiletDetail toilet={selected} onClose={handleCloseToiletDetailForm} />}
         </div>
     );
 }
